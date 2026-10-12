@@ -5,16 +5,24 @@ perimeter, IAM Identity Center with ABAC, GitHub OIDC deployment chain, private 
 break-glass and detection. Region **eu-west-2** (DR **eu-west-1**).
 
 ## Layout
-| Folder | Contents |
+Terragrunt + Terraform. **Modules** are reusable and hold no state; **live/** is what gets applied —
+one folder per account → region → stack, each with its own state file.
+
+```
+root.hcl                      Terragrunt root: remote state (S3, locking) + provider generation
+modules/                      reusable Terraform modules (inputs/outputs, no backend/provider)
+  scp/  permission-set/  private-workload/  cross-account-role/
+live/
+  <account>/account.hcl       account ID + the role Terragrunt assumes into it
+    <region>/region.hcl       region
+      <stack>/terragrunt.hcl  calls a module (or local code) with inputs
+policies/                     hand-written JSON: scps/ rcps/ boundaries/ trust/
+```
+
+| Account | Stacks |
 |---|---|
-| `bootstrap/` | Terraform state bucket (local state, applied once) |
-| `landing-zone/` | Control Tower landing zone |
-| `organization/` | OUs, `scps/`, `rcps/` |
-| `identity/` | IAM Identity Center groups, permission sets, ABAC |
-| `accounts/` | Account vending (manual Account Factory first, AFT later) |
-| `workloads/` | Private EC2, SSM, VPC endpoints, Parameter Store |
-| `detection/` | Break-glass alerts, Access Analyzer |
-| `docs/` | Supporting notes |
+| `management` | landing-zone, organization (OUs, SCPs, RCP), identity, accounts, detection |
+| `payments-prod`, `payments-dev`, `analytics-prod`, `sandbox` | workloads |
 
 ## Apply order
 _To be written as each stack is built._
