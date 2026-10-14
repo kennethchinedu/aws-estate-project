@@ -19,3 +19,4 @@ override.tf.json
 .idea/
 .vscode/
 modules/**/.terraform.lock.hcl
+notes.txt

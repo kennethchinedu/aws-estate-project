@@ -6,3 +6,6 @@ Where each guardrail is enforced (SCP, RCP, permissions boundary, identity polic
 |---|---|---|---|
 
 ## Other decisions
+
+
+"Control Tower decommission blocked by OptInRequired in 2 reactivated accounts; removed their stack instances with RetainStacks, then retried."
