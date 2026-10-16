@@ -59,7 +59,22 @@ module "deny_cloudtrail_tampering" {
 
 
   organizational_unit_ids = toset([
-    aws_organizations_organizational_unit.top["Policy-Staging"].id,
-    aws_organizations_organizational_unit.workloads["Nonprod"].id
+    local.root_id
   ])
+}
+
+# Block root access
+module "deny_root" {
+  source = "../../../../modules/scp"
+
+  name        = "deny-root"
+  description = "Denies all actions by member-account root users. Break-glass: detach from the management account."
+  content     = file("${path.root}/../../../../policies/scps/deny-root.json")
+
+
+  organizational_unit_ids = toset([
+    local.root_id
+  ])
+
+
 }
