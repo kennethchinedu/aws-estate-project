@@ -49,3 +49,17 @@ resource "aws_controltower_baseline" "ou" {
     value = local.identity_center_enabled_baseline_arn
   }
 }
+
+module "deny_cloudtrail_tampering" {
+  source = "../../../../modules/scp"
+
+  name        = "deny-cloudtrail-tampering"
+  description = "Prevents unauthorized disabling or modification of CloudTrail."
+  content     = file("${path.root}/../../../../policies/scps/deny-cloudtrail-tampering.json")
+
+
+  organizational_unit_ids = toset([
+    aws_organizations_organizational_unit.top["Policy-Staging"].id,
+    aws_organizations_organizational_unit.workloads["Nonprod"].id
+  ])
+}
