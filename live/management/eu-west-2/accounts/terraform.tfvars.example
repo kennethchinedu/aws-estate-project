@@ -1,0 +1,6 @@
+account_emails = {
+  log-archive   = "owner+log-archive@example.com"
+  audit         = "owner+audit@example.com"
+  payments-prod = "owner+payments-prod@example.com"
+  payments-dev  = "owner+payments-dev@example.com"
+}
