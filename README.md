@@ -1,6 +1,6 @@
 # aws-estate-project
 
-Governed AWS multi-account estate for a UK fintech: Control Tower landing zone, OUs, SCPs, RCP data
+Governed AWS multi-account estate: Control Tower landing zone, OUs, SCPs, RCP data
 perimeter, IAM Identity Center with ABAC, GitHub OIDC deployment chain, private workloads via SSM,
 break-glass and detection. Region **eu-west-2** (DR **eu-west-1**).
 
