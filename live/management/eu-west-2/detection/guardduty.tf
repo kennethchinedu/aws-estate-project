@@ -8,6 +8,10 @@ resource "aws_guardduty_detector" "audit" {
   provider = aws.audit
 
   enable = true
+
+  depends_on = [
+    aws_guardduty_detector.management
+  ]
 }
 
 # Enable guard duty across all accounts
@@ -18,4 +22,8 @@ resource "aws_guardduty_organization_configuration" "this" {
   detector_id = aws_guardduty_detector.audit.id
 
   depends_on = [aws_guardduty_organization_admin_account.this]
+}
+
+resource "aws_guardduty_detector" "management" {
+  enable = true
 }

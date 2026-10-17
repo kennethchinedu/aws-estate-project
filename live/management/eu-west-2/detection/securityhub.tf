@@ -1,7 +1,7 @@
 # Runs in the Management account.
 resource "aws_securityhub_organization_admin_account" "this" {
   admin_account_id = "056164769591"
-  depends_on = [aws_securityhub_account.audit] # "don't start until SH is ON in Audit"
+  depends_on       = [aws_securityhub_account.audit] # "don't start until SH is ON in Audit"
 
 }
 
@@ -10,7 +10,7 @@ resource "aws_securityhub_account" "audit" {
   provider = aws.audit
 
   enable_default_standards = false
-  
+
 }
 
 # Automatically enable Security Hub for new organization accounts
@@ -35,4 +35,10 @@ resource "aws_securityhub_standards_subscription" "cis" {
   depends_on = [
     aws_securityhub_account.audit
   ]
+}
+
+
+# Management must enable Security Hub itself before it can be added as a member.
+resource "aws_securityhub_account" "management" {
+  enable_default_standards = false
 }
