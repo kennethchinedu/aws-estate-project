@@ -7,7 +7,7 @@ provider "aws" {
       project      = "aws-estate"
       owner        = "ken"
       "managed-by" = "terraform"
-      stack        = "organization"
+      stack        = "detection"
     }
   }
 }
@@ -26,7 +26,7 @@ provider "aws" {
       project      = "aws-estate"
       owner        = "ken"
       "managed-by" = "terraform"
-      stack        = "organization"
+      stack        = "detection"
     }
   }
 }
