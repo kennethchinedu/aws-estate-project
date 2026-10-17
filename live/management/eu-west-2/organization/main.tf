@@ -76,5 +76,26 @@ module "deny_root" {
     local.root_id
   ])
 
-
 }
+
+# Block archive/logs s3 access
+module "deny_log_deletion" {
+
+  source = "../../../../modules/scp"
+
+  name        = "deny-log-deletion"
+  description = "Denies deleting objects in Control Tower's CloudTrail log buckets (Log Archive). Exempt: AWSControlTowerExecution. Break-glass: detach from management."
+  content     = file("${path.root}/../../../../policies/scps/deny-log-deletion.json")
+
+
+  organizational_unit_ids = toset([
+    aws_organizations_organizational_unit.top["Security"].id
+  ])
+}
+
+
+moved {                                    
+  from = module.deny_log-deletion
+  to   = module.deny_log_deletion
+}
+  
