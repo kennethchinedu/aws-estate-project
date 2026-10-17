@@ -1,7 +1,7 @@
 # Runs in the Management account.
 resource "aws_securityhub_organization_admin_account" "this" {
   admin_account_id = "056164769591"
-  depends_on = [aws_securityhub_account.audit]
+  depends_on = [aws_securityhub_account.audit] # "don't start until SH is ON in Audit"
 
 }
 
