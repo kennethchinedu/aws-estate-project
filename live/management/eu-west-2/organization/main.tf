@@ -94,7 +94,7 @@ module "deny_log_deletion" {
 }
 
 
-moved {                                    
+moved {
   from = module.deny_log-deletion
   to   = module.deny_log_deletion
 }
