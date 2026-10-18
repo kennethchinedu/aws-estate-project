@@ -27,7 +27,7 @@ resource "aws_iam_role" "ci_apply" {
           StringEquals = {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
 
-            "token.actions.githubusercontent.com:sub" = "repo:kennethchinedu/aws-estate-project:ref:refs/heads/main"
+            "token.actions.githubusercontent.com:sub" = "repo:kennethchinedu@67561307/aws-estate-project@1415603222:ref:refs/heads/main"
           }
         }
       }
@@ -62,7 +62,7 @@ resource "aws_iam_role" "ci_plan" {
           StringEquals = {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
 
-            "token.actions.githubusercontent.com:sub" = "repo:kennethchinedu/aws-estate-project:pull_request"
+            "token.actions.githubusercontent.com:sub" = "repo:kennethchinedu@67561307/aws-estate-project@1415603222:pull_request"
           }
         }
       }
@@ -97,3 +97,28 @@ resource "aws_iam_role_policy" "ci_plan_lock" {
   })
 }
 
+
+resource "aws_iam_role_policy" "ci_plan_controltower_read" {
+  name = "ci-plan-controltower-read"
+  role = aws_iam_role.ci_plan.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Effect = "Allow"
+
+        Action = [
+          "controltower:GetEnabledControl",
+          "controltower:GetEnabledBaseline",
+          "controltower:ListEnabledControls",
+          "controltower:ListEnabledBaselines",
+          "controltower:ListTagsForResource"
+        ]
+
+        Resource = "*"
+      }
+    ]
+  })
+}
