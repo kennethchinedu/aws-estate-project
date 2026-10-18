@@ -10,6 +10,8 @@ Where each guardrail is enforced (SCP, RCP, permissions boundary, identity polic
 | Deny deleting CloudTrail logs | Own SCP `deny-log-deletion` (`p-s5px4xok`), on Security | Control Tower's `CT.S3.PV.8` (`CTS3PV8`) is a `NotAction` deny that still allows `s3:DeleteObject` and `s3:DeleteObjectVersion` on its trail buckets, so an Admin in Log Archive could delete logs. Attached to Security because the buckets only exist in Log Archive. Limit: anyone in the management account can assume the exempt `AWSControlTowerExecution` role. | Not tested yet |
 | Threat detection and CIS checks | GuardDuty and Security Hub (CIS 3.0.0), delegated administrator = Audit, all accounts members (eu-west-2) | The security team works in Audit, never in the management account (separation of duties). The management account must enable both services itself before it can be added as a member. | All 4 member accounts `Enabled` in both services, checked from Audit |
 | Detective and proactive controls (5) | Control Tower controls on Prod and Nonprod | Detective and proactive controls are not inherited by nested OUs (Control Tower User Guide, "Nested OUs and controls"). First enabled on Workloads, they reported `SUCCEEDED` with 0 Config rules deployed. Targets are derived from the Workloads child OUs, so new child OUs get them. | 3 Config rules present in payments-dev; proactive controls not tested yet |
+| Who can deploy | Trust policies on `ci-plan` (pull requests) and `ci-apply` (`main` only), via GitHub OIDC | No stored AWS keys in GitHub. Unreviewed code can only plan; only merged code can apply. | Tests 11–14 |
+| Who can change `main` | GitHub ruleset `protect-b`: PR required, no force push, no deletion; admin bypass on PRs only | `ci-apply` trusts `main`, so `main` is the real boundary. Even the admin can't push to it directly. | Test 13 |
 
 ## Other decisions
 
@@ -23,3 +25,9 @@ Where each guardrail is enforced (SCP, RCP, permissions boundary, identity polic
 8. **SSE-S3 on the Terraform state bucket**, not a KMS key. Simpler and free. Revisit when decrypt access needs to be logged and restricted by key policy.
 9. **Sandbox OU not registered.** It is empty, so there is nothing to govern yet, but it has no Control Tower controls and no region deny. Known gap: the brief asks for every OU except Suspended to be registered.
 10. **Control Tower decommission** was blocked by `OptInRequired` in 2 reactivated accounts; their stack instances were removed with `RetainStacks`, then the delete was retried.
+11. **CI roles live in the management account.** Normally they'd sit in a deployment account in the Infrastructure OU, out of management's reach. No spare account under the 5-account limit.
+12. **OIDC trust pins the immutable `sub`** (`repo:kennethchinedu@67561307/aws-estate-project@1415603222:…`), so a renamed or recreated repo with the same name can't assume the roles.
+13. **`ci-apply` has `AdministratorAccess` for now.** Scoping an apply role properly is its own job; to do before more stacks move to CI.
+14. **`ci-plan` = `ReadOnlyAccess` + Control Tower reads + the organization stack's lock file only.** `ReadOnlyAccess` doesn't cover Control Tower; the only write is the `.tflock`, never the state.
+15. **Only the organization stack runs in CI so far.** The other stacks still apply from a laptop through SSO. Next candidates: those without cross-account steps or secrets.
+16. **Ruleset: no required status check, 0 approvals.** The plan workflow has a `paths` filter, so a required check would block PRs that don't touch those paths. Solo repo, so approvals would block every merge.
