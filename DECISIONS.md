@@ -31,3 +31,7 @@ Where each guardrail is enforced (SCP, RCP, permissions boundary, identity polic
 14. **`ci-plan` = `ReadOnlyAccess` + Control Tower reads + the organization stack's lock file only.** `ReadOnlyAccess` doesn't cover Control Tower; the only write is the `.tflock`, never the state.
 15. **Only the organization stack runs in CI so far.** The other stacks still apply from a laptop through SSO. Next candidates: those without cross-account steps or secrets.
 16. **Ruleset: no required status check, 0 approvals.** The plan workflow has a `paths` filter, so a required check would block PRs that don't touch those paths. Solo repo, so approvals would block every merge.
+17. **VPC from `terraform-aws-modules/vpc`, pinned (`6.7.3`) inside a local wrapper** (`modules/workloads/vpc`). Saves writing ~20 resources; the wrapper pins the version in one place and adds the S3 gateway endpoint. Third-party code runs with admin, so the version is pinned and reviewed.
+18. **The bucket's endpoint Deny leaves out `s3:ListBucket`.** `HeadBucket` needs it, so Terraform (outside the VPC) saw the bucket as deleted on every refresh and tried to recreate it. Cost: object names can be listed from outside; contents can't be read, written or deleted.
+19. **One NAT gateway for dev** (`single_nat_gateway`). Cheaper; one AZ failure cuts outbound traffic. Prod would use one per AZ.
+20. **`force_destroy` on the test bucket only.** Lets `destroy` empty it (the bucket policy is destroyed first, so the Deny is gone). Never on a bucket that holds real data.
