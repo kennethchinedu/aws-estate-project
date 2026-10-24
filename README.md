@@ -24,7 +24,7 @@ London-only for now ([DECISIONS.md](DECISIONS.md)).
 | Identity | Humans and Terraform sign in through IAM Identity Center (SSO, MFA, temporary credentials) | Groups and permission sets (admin, auditor, engineer, prod read-only), team session tags, ABAC |
 | Data perimeter | | Resource control policy for S3, KMS and Secrets Manager; cross-account read through bucket and KMS key policies |
 | Deployment | | GitHub Actions via OIDC: plan on pull requests, apply from `main` only, deployer role per workload account |
-| Workloads | | Private EC2 with IMDSv2 and no public IP, reached only through SSM Session Manager over VPC endpoints |
+| Workloads | **payments-dev reference architecture** ([docs/reference-architecture.md](docs/reference-architecture.md)): PyGoat on ECS Fargate in private subnets behind an internal ALB, RDS PostgreSQL in isolated subnets (KMS, TLS, password managed and rotated in Secrets Manager), seven interface endpoints and no NAT, WAF (operator IP only, rate limit, four managed rule groups), AWS Backup with Vault Lock (governance). Test server reached only through SSM. Tests 21–28 | CloudFront (VPC origin to the internal ALB, S3 with origin access control): code written, waiting on AWS account verification for CloudFront |
 
 ## Organization
 
@@ -50,16 +50,35 @@ applied: one folder per account, region and stack, each a root module with its o
 
 ```
 modules/
-  state-bucket/      versioned, encrypted, TLS-only S3 bucket for Terraform state (prevent_destroy)
-  scp/               one SCP from a JSON file, attached to a set of OUs or accounts
+  state-bucket/        versioned, encrypted, TLS-only S3 bucket for Terraform state (prevent_destroy)
+  scp/                 one SCP from a JSON file, attached to a set of OUs or accounts
+  private-workload/    EC2 with no public IP, IMDSv2, encrypted root, reached through SSM only
+  workloads/
+    vpc/               public, private and isolated tiers; S3 gateway and interface endpoints
+    ecr-repository/    immutable tags, scan on push, lifecycle
+    log-bucket/        private bucket for ALB and WAF logs
+    postgres/          RDS PostgreSQL, KMS, master secret managed by RDS, client SGs only
+    alb/               ALB, target group, listener, access logs
+    fargate-service/   ECS cluster, service, task definition, execution and task roles, SG
+    edge/              CloudFront (VPC origin, S3 with OAC) and WAF
+    backup/            vault with Vault Lock, plan, selection
 live/management/eu-west-2/
-  bootstrap/         the state bucket itself
-  landing-zone/      the Control Tower landing zone (imported)
-  organization/      OUs, OU registration, SCPs, Control Tower controls
-  accounts/          member accounts and their OU placement
-  detection/         GuardDuty and Security Hub, delegated to Audit
-policies/scps/       hand-written SCP JSON, read by modules/scp
+  bootstrap/           the state bucket itself
+  landing-zone/        the Control Tower landing zone (imported)
+  organization/        OUs, OU registration, SCPs, Control Tower controls
+  accounts/            member accounts and their OU placement
+  cicd/                GitHub OIDC provider and the plan/apply roles
+  detection/           GuardDuty and Security Hub, delegated to Audit
+live/payments-dev/eu-west-2/
+  network/             the VPC, the data bucket, the test server
+  app/                 PyGoat: ECR, RDS, ECS, ALB, WAF, CloudFront, backups (reads network's outputs)
+policies/scps/         hand-written SCP JSON, read by modules/scp
+docs/                  reference-architecture.md: requirements, decisions, cost, build layers
 ```
+
+CI on every pull request (`.github/workflows/terraform-checks.yml`): `terraform fmt`, `validate` for
+every stack, and a Trivy IaC scan that fails on HIGH or CRITICAL. Accepted findings are listed with
+their reasons in `.trivyignore.yaml`.
 
 Each stack keeps its state in S3 at `<account>/<region>/<stack>/terraform.tfstate`, encrypted, with
 native S3 locking (`use_lockfile`).

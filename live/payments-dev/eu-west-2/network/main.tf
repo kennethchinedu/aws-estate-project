@@ -9,18 +9,53 @@ module "payments_dev_vpc" {
 
   enable_nat_gateway = var.enable_nat_gateway
   single_nat_gateway = var.single_nat_gateway
+
+  database_subnets = var.database_subnets
+
+  # No NAT: AWS APIs only through endpoints. ECR image layers use the S3 gateway endpoint.
+  interface_endpoints = [
+    "ecr.api", "ecr.dkr",
+    "logs",
+    "secretsmanager",
+    "ssm", "ssmmessages", "ec2messages",
+  ]
 }
 
-resource "aws_security_group" "app" {
-  name   = "${var.name}-app"
-  vpc_id = module.payments_dev_vpc.vpc_id
+data "aws_caller_identity" "current" {}
 
+resource "aws_kms_key" "payments_data" {
+  description             = "payments-dev data bucket"
+  enable_key_rotation     = true
+  deletion_window_in_days = 7
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Sid       = "EnableIAMPolicies"
+      Effect    = "Allow"
+      Principal = { AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root" }
+      Action    = "kms:*"
+      Resource  = "*"
+    }]
+  })
 }
 
 resource "aws_s3_bucket" "payments_data" {
   bucket        = "payments-dev-data-141538081614"
   force_destroy = true
 
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "payments_data" {
+  bucket = aws_s3_bucket.payments_data.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = "aws:kms"
+      kms_master_key_id = aws_kms_key.payments_data.arn
+    }
+    bucket_key_enabled = true
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "payments_data" {

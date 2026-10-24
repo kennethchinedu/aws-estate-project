@@ -1,0 +1,2 @@
+image_tag         = "dev-20261024-1"
+operator_ip_cidrs = ["203.0.113.10/32"]

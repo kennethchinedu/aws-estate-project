@@ -1,0 +1,18 @@
+# Accepted Trivy findings. Each one names the decision behind it.
+misconfigurations:
+  - id: AWS-0054
+    paths:
+      - "modules/workloads/alb/main.tf"
+    statement: "HTTP between the CloudFront VPC origin and the internal ALB; no domain for an ALB certificate (docs/reference-architecture.md, decision 5)"
+  - id: AWS-0132
+    paths:
+      - "modules/workloads/log-bucket/main.tf"
+    statement: "ALB access logs can only be delivered to SSE-S3 buckets"
+  - id: AWS-0132
+    paths:
+      - "modules/workloads/edge/main.tf"
+    statement: "Static bucket holds public web assets served by CloudFront; SSE-S3 avoids a CloudFront grant on a KMS key"
+  - id: AWS-0132
+    paths:
+      - "modules/state-bucket/main.tf"
+    statement: "State bucket: SSE-S3 with TLS-only, versioned, IAM-restricted access; customer managed key is a known gap"

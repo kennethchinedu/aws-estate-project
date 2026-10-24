@@ -26,11 +26,23 @@ variable "public_subnets" {
 variable "enable_nat_gateway" {
   description = "Whether to create NAT gateway resources"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "single_nat_gateway" {
   description = "Whether private subnets share one NAT gateway"
   type        = bool
   default     = true
+}
+
+variable "database_subnets" {
+  description = "CIDR ranges for isolated database subnets (no route out of the VPC); empty for none"
+  type        = list(string)
+  default     = []
+}
+
+variable "interface_endpoints" {
+  description = "AWS services reached through interface endpoints, by short name (e.g. ecr.api, logs)"
+  type        = set(string)
+  default     = []
 }
