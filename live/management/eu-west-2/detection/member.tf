@@ -17,10 +17,10 @@ resource "aws_guardduty_member" "this" {
   depends_on = [
     aws_guardduty_detector.management
   ]
-# AWS doesn't return email, and reports invite from the member's status"
+  # AWS doesn't return email, and reports invite from the member's status"
   lifecycle {
 
-    ignore_changes = [email,invite]
+    ignore_changes = [email, invite]
   }
 }
 
