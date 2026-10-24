@@ -42,7 +42,7 @@ resource "aws_kms_key" "payments_data" {
 
 resource "aws_s3_bucket" "payments_data" {
   bucket        = "payments-dev-data-141538081614"
-  force_destroy = true
+  force_destroy = true #destroy for project purposes even if there is data
 
 }
 

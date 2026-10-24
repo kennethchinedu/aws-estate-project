@@ -22,6 +22,7 @@ resource "aws_iam_role_policy_attachment" "ssm" {
 }
 
 resource "aws_iam_role_policy" "extra" {
+  #If the caller passes a policy, it's attached as an inline policy on the role
   count = var.policy_json == null ? 0 : 1
 
   name   = var.name
