@@ -28,10 +28,16 @@ variable "public_subnets" {
   default     = ["10.20.101.0/24", "10.20.102.0/24"]
 }
 
+variable "database_subnets" {
+  description = "CIDR blocks for isolated database subnets"
+  type        = list(string)
+  default     = ["10.20.21.0/24", "10.20.22.0/24"]
+}
+
 variable "enable_nat_gateway" {
   description = "Whether to create a NAT gateway"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "single_nat_gateway" {

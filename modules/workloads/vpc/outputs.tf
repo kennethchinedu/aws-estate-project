@@ -18,12 +18,27 @@ output "private_subnet_ids" {
   value       = module.vpc.private_subnets
 }
 
-output "nat_public_ips" {
-  description = "Public IP addresses of the NAT gateways"
-  value       = module.vpc.nat_public_ips
-}
-
 output "s3_endpoint_id" {
   description = "ID of the S3 Gateway VPC endpoint"
   value       = aws_vpc_endpoint.s3.id
+}
+
+output "database_subnet_ids" {
+  description = "IDs of the isolated database subnets"
+  value       = module.vpc.database_subnets
+}
+
+output "database_subnet_group_name" {
+  description = "RDS subnet group over the database subnets"
+  value       = module.vpc.database_subnet_group_name
+}
+
+output "endpoints_security_group_id" {
+  description = "Security group on the interface endpoints"
+  value       = aws_security_group.endpoints.id
+}
+
+output "interface_endpoint_ids" {
+  description = "Interface endpoint IDs by service short name"
+  value       = { for k, e in aws_vpc_endpoint.interface : k => e.id }
 }
