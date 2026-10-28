@@ -23,6 +23,7 @@ provider "aws" {
 
 # WAF for CloudFront lives in us-east-1
 provider "aws" {
+  # checkov:skip=CKV2_CUSTOM_4: Needed to deploy and attach WAF
   alias  = "us_east_1"
   region = "us-east-1"
 

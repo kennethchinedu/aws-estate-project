@@ -1,0 +1,19 @@
+metadata:
+  id: CKV2_CUSTOM_1
+  name: Ensure AWS providers set a non-empty owner default tag
+  category: GENERAL_SECURITY
+
+definition:
+  and:
+    - cond_type: attribute
+      resource_types:
+        - provider.aws
+      attribute: default_tags.tags.owner
+      operator: exists
+
+    - cond_type: attribute
+      resource_types:
+        - provider.aws
+      attribute: default_tags.tags.owner
+      operator: not_equals
+      value: ""
