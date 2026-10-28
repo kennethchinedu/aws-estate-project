@@ -1,0 +1,30 @@
+
+metadata:
+  id: CKV2_CUSTOM_3
+  name: Ensure security groups do not allow SSH from the internet
+  category: NETWORKING
+
+definition:
+  not:
+    and:
+      - cond_type: attribute
+        resource_types:
+          - aws_security_group
+        attribute: ingress.*.from_port
+        operator: less_than_or_equal
+        value: "22"
+
+      - cond_type: attribute
+        resource_types:
+          - aws_security_group
+        attribute: ingress.*.to_port
+        operator: greater_than_or_equal
+        value: "22"
+
+      - cond_type: attribute
+        resource_types:
+          - aws_security_group
+        attribute: ingress.*.cidr_blocks
+        operator: contains
+        value: "0.0.0.0/0"
+

@@ -1,0 +1,14 @@
+metadata:
+  id: CKV2_CUSTOM_4
+  name: Ensure AWS providers use approved regions
+  category: GENERAL_SECURITY
+
+definition:
+  cond_type: attribute
+  resource_types:
+    - provider.aws
+  attribute: region
+  operator: within
+  value:
+    - eu-west-2
+    - eu-west-1
