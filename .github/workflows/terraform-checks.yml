@@ -97,5 +97,5 @@ jobs:
             --framework terraform \
             --external-checks-dir policies/checkov \
             --check CKV2_CUSTOM_1,CKV2_CUSTOM_2,CKV2_CUSTOM_3,CKV2_CUSTOM_4,CKV2_CUSTOM_5 \
-            --compact \
-            --soft-fail
+            --compact 
+            
