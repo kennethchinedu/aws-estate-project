@@ -42,6 +42,7 @@ jobs:
           - live/management/eu-west-2/detection
           - live/payments-dev/eu-west-2/network
           - live/payments-dev/eu-west-2/app
+          - live/payments-dev/eu-west-2/guardrails
 
     steps:
       - name: Checkout repository
