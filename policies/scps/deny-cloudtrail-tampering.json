@@ -14,7 +14,10 @@
         "cloudtrail:UpdateEventDataStore"
         
       ],
-      "Resource": "*",
+      "Resource": [
+        "arn:aws:cloudtrail:*:*:trail/aws-controltower-*",
+        "arn:aws:cloudtrail:*:*:trail/security-*"
+      ],
       
       "Condition": {
         "ArnNotLike": {
